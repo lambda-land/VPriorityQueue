@@ -10,6 +10,8 @@ public interface IVPriorityKey<T> {
 
 	public Iterator<Triple<FeatureExpr, Integer, T>> popMin();
 	
+	public Iterator<Triple<FeatureExpr, Integer, T>> popMin(FeatureExpr f);
+	
 	public boolean popMinCallback(Function<Iterator<Triple<FeatureExpr, Integer, T>>, Boolean> callback);
 
 }

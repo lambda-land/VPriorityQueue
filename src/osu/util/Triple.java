@@ -9,4 +9,5 @@ public class Triple<T1, T2, T3> {
 		this.t2 = t2;
 		this.t3 = t3;
 	}
+	
 }

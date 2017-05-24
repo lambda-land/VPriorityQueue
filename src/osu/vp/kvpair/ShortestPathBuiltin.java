@@ -2,7 +2,6 @@ package osu.vp.kvpair;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.PriorityQueue;
 
@@ -10,9 +9,14 @@ import cmu.conditional.Conditional;
 import cmu.conditional.One;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
-import osu.util.Triple;
-import osu.vp.Util;
+import osu.vp.*;
 
+/**
+ * 
+ * @author Meng Meng
+ * Built-in implementation 
+ *
+ */
 
 class Entry implements Comparable<Entry>{
     Vertex v;
@@ -35,6 +39,8 @@ public class ShortestPathBuiltin {
 	public FeatureExpr running;
 	
 	public Conditional<Integer> arrTime;
+	public Map<Vertex, Conditional<Integer>> dist;
+
 	public ShortestPathBuiltin(Graph graph) {
 		this.graph = graph;
 
@@ -51,12 +57,17 @@ public class ShortestPathBuiltin {
 		Entry entry = new Entry(vertex, hour*60);
 		entry.fe = FeatureExprFactory.True();
 		vpk.add(entry);
+		dist = new HashMap<>();
+		dist.put(vertex, new One<>(0));
 		arrTime = (Conditional<Integer>)One.NULL;
 	}
 	
 	
 	public void run(FeatureExpr _running) {
+		
+		
 		Map<Vertex, Integer> map = new HashMap<>();
+	 
 		this.running = _running;
 		if(running == null) {
 			running = FeatureExprFactory.True();
@@ -71,12 +82,13 @@ public class ShortestPathBuiltin {
 			
 			Vertex vertex = entry.v;
 			FeatureExpr ctx = entry.fe;
+		
 			int currTime = entry.distance;
 			//System.out.println(vertex + " " + ctx + " " + currTime);
 			
 			int day = currTime / 1440;
 			int min = currTime % 1440;
-			System.out.println(vertex.id + " " + currTime +  " visited");
+			//System.out.println(vertex.id + " " + currTime +  " visited");
 			
 			if(vertex.id == t) {
 				if(!ctx.and(running).isContradiction()) {
@@ -97,10 +109,22 @@ public class ShortestPathBuiltin {
 				alCtx = ctx.and(alCtx).and(running);
 				//System.out.println(" hi " + alCtx);
 				if(!alCtx.isContradiction()) {
-					Entry tmp = new Entry(al.u,  currTime + al.weight);
-					tmp.fe = alCtx;
-					vpk.add(tmp);
+					if(!dist.containsKey(al.u)) dist.put(al.u, new One<>(Integer.MAX_VALUE));
+					VDijkstra.UpdateFunction update = VDijkstra.UpdateFunction.getInstance(currTime + al.weight);
+					Conditional<Integer> tmp = dist.get(al.u).mapfr(alCtx, update).simplify(); 
+					if(update.ctx != null) {
+						//vpk.updateKey(update.ctx.and(alCtx), al.u, currTime + al.weight);
+						Entry newEntry = new Entry(al.u,  currTime + al.weight);
+						newEntry.fe = alCtx;
+						vpk.add(newEntry);
+					}
+
+					dist.put(al.u, tmp);
+					
+					
+						
 				}
+				
 			}
 				
 			

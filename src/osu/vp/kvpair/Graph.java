@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import osu.vp.kvpair.*;
 
 class Vertex {
 	int id;
@@ -218,7 +219,7 @@ public class Graph {
 	public static void main(String[] args) {
 		AirlineDataSet dataset = new AirlineDataSet("data/test.csv");
 		AirlineGraph airlineGraph = new AirlineGraph(dataset);
-		String[] carrier = new String[]{"UA", "AA"};
+		String[] carrier = new String[]{"UA", "AA", "DL", "OO", "HA"};
 		CarrierTrans ct = new CarrierTrans(carrier);
 		Graph graph = new Graph(airlineGraph, ct);
 		System.out.println(graph);

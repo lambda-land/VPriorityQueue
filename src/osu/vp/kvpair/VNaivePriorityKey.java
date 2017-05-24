@@ -77,6 +77,12 @@ public class VNaivePriorityKey<T> implements IVPriorityKey<T> {
 		return b;
 	}
 
+	@Override
+	public Iterator<Triple<FeatureExpr, Integer, T>> popMin(FeatureExpr f) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
 
 class PriorityEntry<V> implements Map.Entry<Integer, V>, Comparable {

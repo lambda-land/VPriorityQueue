@@ -2,6 +2,8 @@ package osu.vp.kvpair;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -12,6 +14,7 @@ import cmu.conditional.Function;
 import cmu.conditional.One;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import osu.util.Triple;
+import osu.util.Tuple;
 
 public class VPriorityKey<T> implements IVPriorityKey<T> {
 	
@@ -24,9 +27,12 @@ public class VPriorityKey<T> implements IVPriorityKey<T> {
 	//}
 	
 	public VPriorityKey() {
+		keyTable = new HashMap();
+		proiTable = new TreeMap();
 	}
 	
 	public void updateKey(FeatureExpr ctx, final T k, final Integer p) {
+		if(ctx.isContradiction()) return;
 		/*
 		System.out.println("updateKey " + ctx + " " + k + " " + p);
 		for(Map.Entry<Integer, VHashTable<T>> x : proiTable.entrySet()) {
@@ -120,15 +126,60 @@ public class VPriorityKey<T> implements IVPriorityKey<T> {
 		if(e == null) return null;
 		return new VHashTableIterator(e.getKey(), e.getValue());
 	}
-
+	
+	
+	public Iterator<Triple<FeatureExpr, Integer, T>> popMin(FeatureExpr f) {
+		FeatureExpr ctx = f;
+		List<Triple<FeatureExpr, Integer, T>> list = new LinkedList();
+		
+		for(Map.Entry<Integer, VHashTable<T>> e : proiTable.entrySet()) {
+			if(e == null) return null;
+			Integer proi = e.getKey();
+			VHashTable<T> table = e.getValue();
+			
+			Tuple<List<Tuple<FeatureExpr, T>>, FeatureExpr> lc = table.pop(ctx);
+			List<Tuple<FeatureExpr, T>> l = lc.getKey();
+			ctx = lc.getValue();
+			//System.out.println("ctx is " + ctx);
+			for(Tuple<FeatureExpr, T> t : l) {
+				list.add(new Triple(t.t1, proi, t.t2));
+			}
+			
+			if(ctx.isContradiction()) break;
+			
+		}
+		
+		for(Triple<FeatureExpr, Integer, T> e : list) {
+			final FeatureExpr fe = e.t1;
+			T key = e.t3;
+			
+			Conditional<Integer> val = keyTable.get(key);
+			val = val.mapfr(fe, new BiFunction<FeatureExpr, Integer, Conditional<Integer>>() {
+				@Override
+				public Conditional<Integer> apply(FeatureExpr ctx, Integer y) {
+					if(y == null) {
+						return (Conditional<Integer>)One.NULL; 
+					}
+					if(ctx.isContradiction()) {
+						return One.valueOf(y);			
+					}
+					return ChoiceFactory.create(ctx, (Conditional<Integer>)One.NULL, One.valueOf(y)).simplify();
+				}
+			}).simplify();
+			keyTable.put(key, val);
+		}
+		if(list.isEmpty()) return null;
+		return list.iterator();
+	}
+	
+	
+	
 	@Override
 	public boolean popMinCallback(Function<Iterator<Triple<FeatureExpr, Integer, T>>, Boolean> callback) {
 		Iterator<Triple<FeatureExpr, Integer, T>>  iter = popMin();
 		Boolean b = callback.apply(iter);
 		return b;
-	}
-
-	
+	}	
 	
 }
 

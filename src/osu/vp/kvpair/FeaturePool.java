@@ -6,6 +6,10 @@ import java.util.Map;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
 
+/**
+ * @author Meng Meng 
+ */
+
 public class FeaturePool {
 	private static Map<String, FeatureExpr> map = new HashMap<>();
 	public static FeatureExpr getFe(String fl) {

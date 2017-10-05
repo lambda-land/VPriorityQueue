@@ -9,6 +9,10 @@ import cmu.conditional.VoidBiFunction;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import java.util.*;
 
+/**
+ * @author Meng Meng 
+ */
+
 public class VSimpleWT {
 	private Map<Integer, VHashTable<Integer>> pqMap = new TreeMap();
 	private Map<Integer, Conditional<Integer>> priority = new HashMap();

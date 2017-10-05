@@ -11,6 +11,10 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import osu.util.Triple;
 
+/**
+ * @author Meng Meng 
+ */
+
 public class VPriorityKeyTest {
 
     FeatureExpr a = FeatureExprFactory.createDefinedExternal("a");

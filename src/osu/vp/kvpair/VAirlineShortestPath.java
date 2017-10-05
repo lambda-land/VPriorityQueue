@@ -19,6 +19,9 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import osu.util.Triple;
 import osu.vp.Util;
 
+/**
+ * @author Meng Meng 
+ */
 
 class IDTrans implements IVAirlineTrans {
 

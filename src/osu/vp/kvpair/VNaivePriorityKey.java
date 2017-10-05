@@ -7,6 +7,10 @@ import cmu.conditional.*;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import osu.util.Triple;
 
+/**
+ * @author Meng Meng 
+ */
+
 public class VNaivePriorityKey<T> implements IVPriorityKey<T> {
 	Map<T, Conditional<Integer>> keyTable = new HashMap();
 	Conditional<PriorityQueue<Map.Entry<Integer, T>>> cpq = new One<PriorityQueue<Map.Entry<Integer, T>>>(new PriorityQueue());
@@ -79,6 +83,24 @@ public class VNaivePriorityKey<T> implements IVPriorityKey<T> {
 
 	@Override
 	public Iterator<Triple<FeatureExpr, Integer, T>> popMin(FeatureExpr f) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int totalNode() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setCtx(FeatureExpr fe) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public FeatureExpr getCtx() {
 		// TODO Auto-generated method stub
 		return null;
 	}

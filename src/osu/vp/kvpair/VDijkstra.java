@@ -20,7 +20,6 @@ import osu.util.Triple;
 import osu.vp.Util;
 import osu.vp.kvpair.*;
 
-
 /**
  * 
  * @author Meng Meng
@@ -28,6 +27,7 @@ import osu.vp.kvpair.*;
  *
  */
 public class VDijkstra {
+	public int max = 0;
 	public Graph graph;
 	public IVAirlineTrans trans;
 	public IVPriorityKey<Vertex> vpk;
@@ -46,6 +46,7 @@ public class VDijkstra {
 	public void set(int s, int t, int hour, IVPriorityKey<Vertex> _vpk) {
 		this.s = s;
 		this.t = t;
+		this.max = 0;
 		System.out.println("source:" + s + ", target:" + t + ", dep time:" + hour + ":00");
 		if(_vpk == null) {
 			vpk = new VPriorityKey<Vertex>();
@@ -64,11 +65,16 @@ public class VDijkstra {
 	
 	
 	public void run(FeatureExpr _running, boolean withCtx) {
+	    max = Math.max(max, vpk.totalNode());
 		this.running = _running;
 		if(running == null) {
 			running = FeatureExprFactory.True();
 		}
 		while(!running.isContradiction()) {
+//			System.out.println("running fe  is " + running);
+//			System.out.println(vpk.toString());
+//			System.out.println("------------------------------");
+			max = Math.max(max, vpk.totalNode());
 			Iterator<Triple<FeatureExpr, Integer, Vertex>> e ;
 			if(withCtx) {
 				e = vpk.popMin(running);
@@ -82,6 +88,7 @@ public class VDijkstra {
 			}
 			
 			while(e.hasNext()) {
+				
 				// FeatureExpr, Priority, Key
 				// FeatureExpr, ArrTime, ID
 				Triple<FeatureExpr, Integer, Vertex> triple = e.next();
@@ -94,6 +101,9 @@ public class VDijkstra {
 				//System.out.println(vertex.id + " " + currTime +  " visited");
 				
 				if(vertex.id == t) {
+//					System.out.println("running fe  is " + running);
+//					System.out.println(vpk.toString());
+//					System.out.println("------------------------------");
 					if(running.and(ctx).isContradiction()) {
 						continue;
 					}
@@ -159,41 +169,66 @@ public class VDijkstra {
 	
 	public static void simpleTest() {
 		//AirlineDataSet dataset = new AirlineDataSet("data/test.csv");
-		AirlineDataSet dataset = new AirlineDataSet("data/T_ONTIME.csv");
+        AirlineDataSet dataset = new AirlineDataSet("data/T_ONTIME.csv");
     	System.out.println("dataset is loaded.");
 		AirlineGraph airGraph = new AirlineGraph(dataset);
 		//String[] carrier = new String[]{"UA", "AA"};
-		String[] carrier = new String[]{"UA", "AA", "DL", "OO", "HA"};
+		//String[] carrier = new String[]{"UA", "AA", "DL", "OO", "HA","B6", "EV", "WN", "NK"};
+		String[] carrier = new String[]{"AS", "B6", "EV", "WN", "NK"};
+		//String[] carrier = new String[]{"UA", "AA", "DL", "OO", "HA", "AS", "B6", "EV", "WN", "NK", "VX", "F9"};
 		CarrierTrans ct = new CarrierTrans(carrier);
 		Graph graph = new Graph(airGraph, ct);
 		System.out.println("graph is created.");
 		VDijkstra vasp = new VDijkstra(graph);
-
-		//vasp.set(1, 4, 5, new VPriorityKey<Vertex>());
-		vasp.set(11298, 14100, 23, new VPriorityKey<Vertex>());
+        //14100
+		int s = 13930, t = 10874, tf = 23;
+		//int s = 11298, t = 14100, tf = 23;
+		//int s = 1, t = 4, tf = 0;
+		//vasp.set(s, t, tf, new VPriorityKey<Vertex>());
+		FeatureExpr running = FeatureExprFactory.True();
+//		running = running.andNot(ct.getFeatureExpr("UA"));
+//		running = running.andNot(ct.getFeatureExpr("OO"));
+//		running = running.andNot(ct.getFeatureExpr("AA"));
+//    	running = running.andNot(ct.getFeatureExpr("DL"));
+//		
+//		running = running.andNot(ct.getFeatureExpr("HA"));
+		running = running.andNot(ct.getFeatureExpr("AS"));
+//		
+		running = running.andNot(ct.getFeatureExpr("EV"));
+//		running = running.andNot(ct.getFeatureExpr("WN"));
+//		
+//		running = running.andNot(ct.getFeatureExpr("F9"));
+//		running = running.andNot(ct.getFeatureExpr("B6"));
+//		
+//		running = running.andNot(ct.getFeatureExpr("NK"));
+		
+		
+		//running = running.andNot(ct.getFeatureExpr("AA")).andNot(ct.getFeatureExpr("DL"));
+		System.out.println("Running fe: " + running);
+		vasp.set(s, t, tf, new VPriorityKey<Vertex>());
 		
 		long start, end;
 		start = System.nanoTime();
-		vasp.run(FeatureExprFactory.True(), false);
+		vasp.run(running, false);
 		end = System.nanoTime();
-		System.out.println((end - start)/1e9);
+		System.out.println((end - start)/1e9 + " size: " + vasp.max);
 		
-		vasp.set(11298, 14100, 23, new VPriorityKey<Vertex>());
+		vasp.set(s, t, tf, new VPriorityKey<Vertex>());
 		start = System.nanoTime();
-		vasp.run(FeatureExprFactory.True(), true);
+		vasp.run(running, true);
 		end = System.nanoTime();
-		System.out.println((end - start)/1e9);
+		System.out.println((end - start)/1e9 + " size: " + vasp.max);
 		
 		
-		
-		ShortestPathBuiltin vsp = new ShortestPathBuiltin(graph);
-
-		vsp.set(11298, 14100, 23, new VPriorityKey<Vertex>());
-		
-		start = System.nanoTime();
-		vsp.run(FeatureExprFactory.True());
-		end = System.nanoTime();
-		System.out.println((end - start)/1e9);
+//		
+//		ShortestPathBuiltin vsp = new ShortestPathBuiltin(graph);
+//
+//		vsp.set(s, t, tf, new VPriorityKey<Vertex>());
+//		
+//		start = System.nanoTime();
+//		vsp.run(running);
+//		end = System.nanoTime();
+//		System.out.println((end - start)/1e9 + " size: " + vsp.max);
 	}
 
 	public static void main(String[] args) throws FileNotFoundException{

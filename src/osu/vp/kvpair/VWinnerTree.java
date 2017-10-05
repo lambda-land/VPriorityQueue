@@ -9,6 +9,10 @@ import cmu.conditional.VoidBiFunction;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import java.util.*;
 
+/**
+ * @author Meng Meng 
+ */
+
 public class VWinnerTree {
 	private Map.Entry<Integer, Integer> makePair(int k, int v) {
 		return new AbstractMap.SimpleEntry<Integer,Integer>(k, v);

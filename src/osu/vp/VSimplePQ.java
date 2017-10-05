@@ -1,4 +1,9 @@
+
 package osu.vp;
+
+/**
+ * @author Meng Meng 
+ */
 
 import cmu.conditional.BiFunction;
 import cmu.conditional.ChoiceFactory;
@@ -7,6 +12,7 @@ import cmu.conditional.Function;
 import cmu.conditional.One;
 import cmu.conditional.VoidBiFunction;
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import osu.vp.kvpair.IVPriorityQueue;
 
 import java.util.*;
@@ -47,6 +53,12 @@ public class VSimplePQ implements IVPriorityQueue {
 		for(Map.Entry<Integer, Conditional<Integer>> e : map.entrySet()) {
 			Integer t = e.getKey();
 			FeatureExpr fe = e.getValue().getFeatureExpr(0).not();
+			
+			if(fe.isContradiction()) {
+				map.remove(t);
+				return pollMin();
+			}
+			
 			Conditional<Integer> nv = vadd(e.getValue(), fe, -1);
 			map.put(t, nv);
 			return ChoiceFactory.create(fe, One.valueOf(e.getKey()), (One<Integer>)One.NULL);
@@ -56,7 +68,13 @@ public class VSimplePQ implements IVPriorityQueue {
 	
 	public Conditional<Integer> peekMin() {
 		for(Map.Entry<Integer, Conditional<Integer>> e : map.entrySet()) {
-			return ChoiceFactory.create(e.getValue().getFeatureExpr(0), (One<Integer>)One.NULL, One.valueOf(e.getKey()));
+			Integer t = e.getKey();
+			FeatureExpr fe = e.getValue().getFeatureExpr(0).not();
+			if(fe.isContradiction()) {
+				map.remove(t);
+				return peekMin();
+			}
+			return ChoiceFactory.create(fe, One.valueOf(e.getKey()), (One<Integer>)One.NULL);
 		}
 		return (One<Integer>)One.NULL;
 	}
@@ -103,7 +121,11 @@ public class VSimplePQ implements IVPriorityQueue {
 		}
 		Conditional<Integer> ret = (One<Integer>)One.NULL;
 		for(int i = lc.size() - 1; i >= 0; --i) {
-			ret = ChoiceFactory.create(lf.get(i), One.valueOf(lc.get(i)), ret);
+			if(lf.get(i).isTautology()) {
+				ret = One.valueOf(lc.get(i));
+			} else if(!lf.get(i).isContradiction()) {
+				ret = ChoiceFactory.create(lf.get(i), One.valueOf(lc.get(i)), ret);
+			}
 		}
 		min = ret;
 		return min;
@@ -114,7 +136,17 @@ public class VSimplePQ implements IVPriorityQueue {
 
 	@Override
 	public Conditional<Boolean> isEmpty(FeatureExpr e) {
-		if(peek(e).equals(One.NULL)) return new One<>(true);
-		return new One<>(false);
+		if(peek(e).equals(One.NULL)) return One.TRUE;
+		return One.FALSE;
+	}
+	/*
+	public Conditional<Boolean> isEmpty() {
+		if(peekMin().equals(One.NULL)) return One.TRUE;
+		return One.FALSE;
+	}
+	*/
+	public boolean isEmpty() {
+		if(peekMin().equals(One.NULL)) return true;
+		return false;
 	}
 }

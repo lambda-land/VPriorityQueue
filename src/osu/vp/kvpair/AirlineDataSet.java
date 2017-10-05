@@ -9,6 +9,10 @@ import java.util.List;
 
 import com.opencsv.CSVReader;
 
+/**
+ * @author Meng Meng 
+ */
+
 public class AirlineDataSet {
     CSVReader reader;
     List<String> fl_date = new ArrayList<>();

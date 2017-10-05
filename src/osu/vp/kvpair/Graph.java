@@ -8,6 +8,10 @@ import java.util.Map;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import osu.vp.kvpair.*;
 
+/**
+ * @author Meng Meng 
+ */
+
 class Vertex {
 	int id;
 	int arrive;
@@ -105,7 +109,7 @@ class Pair {
 }
 
 public class Graph {
-	List<Vertex> vertexes;
+	// List<Vertex> vertexes;
 	Map<Pair, Vertex> id2v = new HashMap<>();
 	Map<Integer, Map<Integer, Vertex>> a2v = new HashMap<>();
 
@@ -198,17 +202,24 @@ public class Graph {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
+		int org = 0, count = 0, edgenum = 0;
 		for (Map.Entry<Integer, Map<Integer, Vertex>> entry : a2v.entrySet()) {
+			org++;
 			for (Vertex v : entry.getValue().values()) {
+				count++;
+				edgenum += v.edge.size();
 
 				for (Edge e : v.edge) {
-					sb.append(e.v.toString() + "--" + e.weight + "--" + e.u.toString());
-					sb.append("\n");
+					// sb.append(e.v.toString() + "--" + e.weight + "--" + e.u.toString());
+					// sb.append("\n");
+					
+					
 				}
 
 			}
-			sb.append("\n");
+			// sb.append("\n");
 		}
+		System.out.println("vertex count: " + org + " " + count + " " + edgenum);
 		return sb.toString();
 	}
 
@@ -217,7 +228,8 @@ public class Graph {
 	}
 
 	public static void main(String[] args) {
-		AirlineDataSet dataset = new AirlineDataSet("data/test.csv");
+		AirlineDataSet dataset = new AirlineDataSet("data/T_ONTIME.csv");
+		//AirlineDataSet dataset = new AirlineDataSet("data/test.csv");
 		AirlineGraph airlineGraph = new AirlineGraph(dataset);
 		String[] carrier = new String[]{"UA", "AA", "DL", "OO", "HA"};
 		CarrierTrans ct = new CarrierTrans(carrier);

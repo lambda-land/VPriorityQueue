@@ -16,8 +16,12 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 import osu.util.Triple;
 import osu.util.Tuple;
 
+/**
+ * @author Meng Meng 
+ */
+
 public class VPriorityKey<T> implements IVPriorityKey<T> {
-	
+	FeatureExpr running;
 	Map<T, Conditional<Integer>> keyTable = new HashMap();
 	TreeMap<Integer, VHashTable<T>> proiTable = new TreeMap();
 	//IVPriorityQueue pq;
@@ -52,6 +56,9 @@ public class VPriorityKey<T> implements IVPriorityKey<T> {
 				
 				if(y != null && proiTable.get(y) != null) {
 					proiTable.get(y).remove(ctx, k);
+					if(proiTable.get(y).isEmpty()) {
+						proiTable.remove(y);
+					}
 				}
 				
 				if(proiTable.get(p) == null) {
@@ -132,7 +139,8 @@ public class VPriorityKey<T> implements IVPriorityKey<T> {
 		FeatureExpr ctx = f;
 		List<Triple<FeatureExpr, Integer, T>> list = new LinkedList();
 		
-		for(Map.Entry<Integer, VHashTable<T>> e : proiTable.entrySet()) {
+		for(Iterator<Map.Entry<Integer, VHashTable<T>>> ie = proiTable.entrySet().iterator(); ie.hasNext(); ) {
+			Map.Entry<Integer, VHashTable<T>> e = ie.next();
 			if(e == null) return null;
 			Integer proi = e.getKey();
 			VHashTable<T> table = e.getValue();
@@ -140,9 +148,14 @@ public class VPriorityKey<T> implements IVPriorityKey<T> {
 			Tuple<List<Tuple<FeatureExpr, T>>, FeatureExpr> lc = table.pop(ctx);
 			List<Tuple<FeatureExpr, T>> l = lc.getKey();
 			ctx = lc.getValue();
+			
 			//System.out.println("ctx is " + ctx);
 			for(Tuple<FeatureExpr, T> t : l) {
 				list.add(new Triple(t.t1, proi, t.t2));
+			}
+			
+			if(table.isEmpty()) {
+				ie.remove();
 			}
 			
 			if(ctx.isContradiction()) break;
@@ -176,10 +189,37 @@ public class VPriorityKey<T> implements IVPriorityKey<T> {
 	
 	@Override
 	public boolean popMinCallback(Function<Iterator<Triple<FeatureExpr, Integer, T>>, Boolean> callback) {
-		Iterator<Triple<FeatureExpr, Integer, T>>  iter = popMin();
+		Iterator<Triple<FeatureExpr, Integer, T>> iter = popMin();
 		Boolean b = callback.apply(iter);
 		return b;
+	}
+
+	@Override
+	public int totalNode() {
+		return proiTable.size();
+	}
+
+	@Override
+	public void setCtx(FeatureExpr fe) {
+		running = fe;
+	}
+
+	@Override
+	public FeatureExpr getCtx() {
+		return running;
 	}	
+	
+	@Override
+	public String toString() {
+		System.out.println("------------------------------");
+	    StringBuilder sb = new StringBuilder();
+		for(Map.Entry m : proiTable.entrySet()) {
+			sb.append(m.getKey() + "\n");
+			sb.append(m.getValue());
+		}
+	
+		return sb.toString();
+	}
 	
 }
 

@@ -32,6 +32,7 @@ class Entry implements Comparable<Entry>{
 }
 
 public class ShortestPathBuiltin {
+	public int max = 0;
 	public Graph graph;
 	public IVAirlineTrans trans;
 	public PriorityQueue<Entry> vpk;
@@ -65,7 +66,7 @@ public class ShortestPathBuiltin {
 	
 	public void run(FeatureExpr _running) {
 		
-		
+		max = Math.max(max, vpk.size());
 		Map<Vertex, Integer> map = new HashMap<>();
 	 
 		this.running = _running;
@@ -73,7 +74,7 @@ public class ShortestPathBuiltin {
 			running = FeatureExprFactory.True();
 		}
 		while(!running.isContradiction()) {
-		
+			max = Math.max(max, vpk.size());
 			Entry entry = vpk.poll();
 			if(entry == null) {
 				System.out.println(running + " NO path found");
@@ -102,7 +103,6 @@ public class ShortestPathBuiltin {
 				continue;
 			}
 			
-		
 			
 			for(Edge al : vertex.edge) {
 				FeatureExpr alCtx = al.fe;
@@ -120,14 +120,9 @@ public class ShortestPathBuiltin {
 					}
 
 					dist.put(al.u, tmp);
-					
-					
-						
 				}
 				
 			}
-				
-			
 		}
 	}
 	

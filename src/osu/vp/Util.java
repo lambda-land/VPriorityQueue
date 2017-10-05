@@ -1,5 +1,10 @@
 package osu.vp;
 
+/**
+ * @author Meng Meng 
+ */
+
+
 import cmu.conditional.BiFunction;
 import cmu.conditional.ChoiceFactory;
 import cmu.conditional.Conditional;

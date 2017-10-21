@@ -67,11 +67,13 @@ class TreeChoice<T> extends IChoice<T> implements Cloneable {
     	
         FeatureExpr and = ctx.and(featureExpr);
         if (isContradiction(and)) {
+        	if(elseBranch == null) return elseBranch;
             return elseBranch.simplify(ctx.andNot(featureExpr));
         }
 
         FeatureExpr andNot = ctx.andNot(featureExpr);
         if (isContradiction(andNot)) {
+        	if(thenBranch == null) return thenBranch;
             return thenBranch.simplify(and);
         }
 
@@ -82,30 +84,31 @@ class TreeChoice<T> extends IChoice<T> implements Cloneable {
             return tb;
         }
         
+        if(featureExpr.isContradiction()) return eb;
+        if(featureExpr.isTautology()) return tb;
+        
         if (tb instanceof One) {
             if (eb instanceof TreeChoice) {
-                if (((TreeChoice<T>) eb).thenBranch.equals(tb)) {
+                if (((TreeChoice<T>) eb).thenBranch != null && ((TreeChoice<T>) eb).thenBranch.equals(tb)) {
                     return new TreeChoice<>(featureExpr.or(featureExpr.not().and(((TreeChoice<T>) eb).featureExpr)), tb, ((TreeChoice<T>) eb).elseBranch);
                 }
-                if (((TreeChoice<T>) eb).elseBranch.equals(tb)) {
+                if (((TreeChoice<T>) eb).elseBranch != null && ((TreeChoice<T>) eb).elseBranch.equals(tb)) {
                     return new TreeChoice<>(featureExpr.or(featureExpr.not().and(((TreeChoice<T>) eb).featureExpr.not())), tb, ((TreeChoice<T>) eb).thenBranch);
                 }
             }
         }
+        
         if (eb instanceof One) {
             if (tb instanceof TreeChoice) {
-                if (((TreeChoice<T>) tb).thenBranch.equals(eb)) {
+                if (((TreeChoice<T>) tb).thenBranch != null && ((TreeChoice<T>) tb).thenBranch.equals(eb)) {
                     return new TreeChoice<>(featureExpr.not().or(featureExpr.and(((TreeChoice<T>) tb).featureExpr)), eb, ((TreeChoice<T>) tb).elseBranch);
                 }
-                if (((TreeChoice<T>) tb).elseBranch.equals(eb)) {
+                if (((TreeChoice<T>) tb).elseBranch != null && ((TreeChoice<T>) tb).elseBranch.equals(eb)) {
                     return new TreeChoice<>(featureExpr.not().or(featureExpr.and(((TreeChoice<T>) tb).featureExpr.not())), eb, ((TreeChoice<T>) tb).thenBranch);
                 }
             }
         }
-        
-        if(featureExpr.isContradiction()) return eb;
-        if(featureExpr.isTautology()) return tb;
-        
+
         return new TreeChoice<>(featureExpr, tb, eb);
     }
 

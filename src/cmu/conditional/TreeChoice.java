@@ -83,11 +83,7 @@ class TreeChoice<T> extends IChoice<T> implements Cloneable {
         if(tb == eb) {
             return tb;
         }
-        /*
-        if (tb.equals(eb)) {
-            return tb;
-        }
-        
+
         if(featureExpr.isContradiction()) return eb;
         if(featureExpr.isTautology()) return tb;
         
@@ -112,7 +108,7 @@ class TreeChoice<T> extends IChoice<T> implements Cloneable {
                 }
             }
         }
-        */
+		
         if(featureExpr.isContradiction()) return eb;
         if(featureExpr.isTautology()) return tb;
 

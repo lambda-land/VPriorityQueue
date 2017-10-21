@@ -86,14 +86,27 @@ public class ConditionalPQ implements IVPriorityQueue{
 
 	@Override
 	public Conditional<Integer> pollMin() {
-		// TODO Auto-generated method stub
-		return null;
+		Conditional<Integer> ret = vpq.mapfr(FeatureExprFactory.True(), new BiFunction<FeatureExpr, PriorityQueue<Integer>, Conditional<Integer>>(){
+			@Override 
+			public Conditional<Integer> apply(FeatureExpr ctx, PriorityQueue<Integer> pq) {
+				if(ctx.isContradiction()) {
+					return null;
+				}
+				return new One<>(pq.poll());
+			}
+		});
+		return ret.simplify();
 	}
 
 	@Override
 	public Conditional<Integer> peekMin() {
-		// TODO Auto-generated method stub
-		return null;
+		return vpq.map(new Function<PriorityQueue<Integer>, Integer>() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public Integer apply(PriorityQueue<Integer> pq) {
+				return pq.peek();
+			}
+		}).simplifyValues();
 	}
 
 	@Override
@@ -104,7 +117,7 @@ public class ConditionalPQ implements IVPriorityQueue{
 			public Conditional<Boolean> apply(FeatureExpr f, PriorityQueue<Integer> y) {
 				return new One<>(y.isEmpty());
 			}
-	    	
+		    
 	    }).simplify(e);
 	}
 

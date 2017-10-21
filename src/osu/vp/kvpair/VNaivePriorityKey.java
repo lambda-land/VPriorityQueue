@@ -82,8 +82,8 @@ public class VNaivePriorityKey<T> implements IVPriorityKey<T> {
 	}
 
 	@Override
-	public Iterator<Triple<FeatureExpr, Integer, T>> popMin(FeatureExpr ctx) {
-		Conditional<Map.Entry<Integer, T>> e = cpq.mapfr(f, new BiFunction<FeatureExpr, PriorityQueue<Map.Entry<Integer, T>>, Conditional<Map.Entry<Integer, T>>>() {
+	public Iterator<Triple<FeatureExpr, Integer, T>> popMin(final FeatureExpr ctx) {
+		Conditional<Map.Entry<Integer, T>> e = cpq.mapfr(ctx, new BiFunction<FeatureExpr, PriorityQueue<Map.Entry<Integer, T>>, Conditional<Map.Entry<Integer, T>>>() {
 			@Override
 			public Conditional<Entry<Integer, T>> apply(FeatureExpr f, PriorityQueue<Entry<Integer, T>> pq) {
 				if(f.isContradiction() || pq == null || pq.isEmpty()) return null;
@@ -96,7 +96,8 @@ public class VNaivePriorityKey<T> implements IVPriorityKey<T> {
 				Conditional<Entry<Integer, T>> res = new One<Entry<Integer, T>>(clone.poll());
 				if(f.isTautology()) cpq = new One<>(clone);
 				else cpq = ChoiceFactory.create(f, new One<>(clone), cpq);
-				return res;
+				return res;	
+			}
 		}).simplify();
 		return new CPQEntryIterator<T>(e.toMap().entrySet().iterator());
 	}

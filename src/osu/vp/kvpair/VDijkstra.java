@@ -82,7 +82,7 @@ public class VDijkstra {
 				e = vpk.popMin();
 			} 
 			
-			if(e == null) {
+			if(e == null || !e.hasNext()) {
 				System.out.println(running + " NO path found");
 				break;
 			}

@@ -80,6 +80,10 @@ class TreeChoice<T> extends IChoice<T> implements Cloneable {
         final Conditional<T> tb = thenBranch == null ? null : thenBranch.simplify(and);
         final Conditional<T> eb = elseBranch == null ? null : elseBranch.simplify(andNot);
 
+        if(tb == eb) {
+            return tb;
+        }
+        /*
         if (tb.equals(eb)) {
             return tb;
         }
@@ -108,6 +112,9 @@ class TreeChoice<T> extends IChoice<T> implements Cloneable {
                 }
             }
         }
+        */
+        if(featureExpr.isContradiction()) return eb;
+        if(featureExpr.isTautology()) return tb;
 
         return new TreeChoice<>(featureExpr, tb, eb);
     }
@@ -176,8 +183,8 @@ class TreeChoice<T> extends IChoice<T> implements Cloneable {
 
     @Override
     protected void toMap(FeatureExpr ctx, Map<T, FeatureExpr> map) {
-        thenBranch.toMap(ctx.and(featureExpr), map);
-        elseBranch.toMap(ctx.andNot(featureExpr), map);
+        if(thenBranch != null) thenBranch.toMap(ctx.and(featureExpr), map);
+        if(elseBranch != null) elseBranch.toMap(ctx.andNot(featureExpr), map);
     }
 
     @Override
@@ -189,7 +196,7 @@ class TreeChoice<T> extends IChoice<T> implements Cloneable {
     public Conditional<T> simplifyValues() {
         final Conditional<T> tb = thenBranch.simplifyValues();
         final Conditional<T> eb = elseBranch.simplifyValues();
-
+        
         if (tb.equals(eb)) {
             return tb;
         }
@@ -214,7 +221,7 @@ class TreeChoice<T> extends IChoice<T> implements Cloneable {
                 }
             }
         }
-
+        
         return new TreeChoice<>(featureExpr, tb, eb);
     }
 

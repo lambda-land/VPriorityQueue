@@ -99,6 +99,7 @@ public class VNaivePriorityKey<T> implements IVPriorityKey<T> {
 				return res;	
 			}
 		}).simplify();
+		if(e == null) return null;
 		return new CPQEntryIterator<T>(e.toMap().entrySet().iterator());
 	}
 

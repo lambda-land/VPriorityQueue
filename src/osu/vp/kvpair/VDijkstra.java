@@ -83,7 +83,7 @@ public class VDijkstra {
 			} 
 			
 			if(e == null || !e.hasNext()) {
-				System.out.println(running + " NO path found");
+				//System.out.println(running + " NO path found");
 				break;
 			}
 			
@@ -107,9 +107,9 @@ public class VDijkstra {
 					if(running.and(ctx).isContradiction()) {
 						continue;
 					}
-					System.out.println(running.and(ctx) + " arr time:" + 
-							(day > 0 ? ("day" + (day + 1)) + " " : "") + 
-							min / 60 + ":" + min % 60);
+//					System.out.println(running.and(ctx) + " arr time:" + 
+//							(day > 0 ? ("day" + (day + 1)) + " " : "") + 
+//							min / 60 + ":" + min % 60);
 
 					arrTime = Util.vmin(arrTime, ctx, currTime);
 					running = running.andNot(ctx);
@@ -173,16 +173,17 @@ public class VDijkstra {
     	System.out.println("dataset is loaded.");
 		AirlineGraph airGraph = new AirlineGraph(dataset);
 		//String[] carrier = new String[]{"UA", "AA"};
-		//String[] carrier = new String[]{"UA", "AA", "DL", "OO", "HA","B6", "EV", "WN", "NK"};
-		String[] carrier = new String[]{"AS", "B6", "EV", "WN", "NK"};
-		//String[] carrier = new String[]{"UA", "AA", "DL", "OO", "HA", "AS", "B6", "EV", "WN", "NK", "VX", "F9"};
+		//String[] carrier = new String[]{"UA", "AA", "DL", "OO", "HA"};
+		
+		//String[] carrier = new String[]{"UA", "AA", "DL", "OO", "HA","B6", "EV"};
+		String[] carrier = new String[]{"UA", "AA", "DL", "OO", "HA","B6", "EV", "WN", "NK"};
 		CarrierTrans ct = new CarrierTrans(carrier);
 		Graph graph = new Graph(airGraph, ct);
 		System.out.println("graph is created.");
 		VDijkstra vasp = new VDijkstra(graph);
         //14100
-		int s = 13930, t = 10874, tf = 23;
-		//int s = 11298, t = 14100, tf = 23;
+		//int s = 13930, t = 10874, tf = 23;
+		int s = 11298, t = 14100, tf = 23;
 		//int s = 1, t = 4, tf = 0;
 		//vasp.set(s, t, tf, new VPriorityKey<Vertex>());
 		FeatureExpr running = FeatureExprFactory.True();
@@ -192,9 +193,9 @@ public class VDijkstra {
 //    	running = running.andNot(ct.getFeatureExpr("DL"));
 //		
 //		running = running.andNot(ct.getFeatureExpr("HA"));
-		running = running.andNot(ct.getFeatureExpr("AS"));
+//		running = running.andNot(ct.getFeatureExpr("AS"));
 //		
-		running = running.andNot(ct.getFeatureExpr("EV"));
+//		running = running.andNot(ct.getFeatureExpr("EV"));
 //		running = running.andNot(ct.getFeatureExpr("WN"));
 //		
 //		running = running.andNot(ct.getFeatureExpr("F9"));
@@ -211,13 +212,27 @@ public class VDijkstra {
 		start = System.nanoTime();
 		vasp.run(running, false);
 		end = System.nanoTime();
-		System.out.println((end - start)/1e9 + " size: " + vasp.max);
+		System.out.println("f() " + (end - start)/1e9 + " size: " + vasp.max);
 		
 		vasp.set(s, t, tf, new VPriorityKey<Vertex>());
 		start = System.nanoTime();
 		vasp.run(running, true);
 		end = System.nanoTime();
-		System.out.println((end - start)/1e9 + " size: " + vasp.max);
+		System.out.println("f(ctx) " + (end - start)/1e9 + " size: " + vasp.max);
+		
+		
+//		vasp.set(s, t, tf, new VNaivePriorityKey<Vertex>());
+//		start = System.nanoTime();
+//		vasp.run(running, false);
+//		end = System.nanoTime();
+//		System.out.println("naivef() " + (end - start)/1e9 + " size: " + vasp.max);
+		
+		
+		vasp.set(s, t, tf, new VNaivePriorityKey<Vertex>());
+		start = System.nanoTime();
+		vasp.run(running, true);
+		end = System.nanoTime();
+		System.out.println("naivef(ctx) " + (end - start)/1e9 + " size: " + vasp.max);
 		
 		
 //		
